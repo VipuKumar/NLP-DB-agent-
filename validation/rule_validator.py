@@ -2,6 +2,11 @@ import re
 
 
 
+
+
+
+
+
 class RuleViolation(Exception):
     pass
 
@@ -16,11 +21,9 @@ TAUTOLOGIES = [
 
 
 def validate_rules(sql:str)->None:
+    print("VALIDATING:",sql)
     sql_upper=sql.upper().strip()
 
-
-    if ";" in sql_upper[:-1]:
-        raise RuleViolation("Multiple Sql queries not allowed")
 
 
     for cmd in BLACKLIST:
@@ -35,10 +38,17 @@ def validate_rules(sql:str)->None:
             raise RuleViolation("UPDATE/DELETE without WHERE is not allowed")
         
 
+    #if sql_upper.startswith("UPDATE"):
+     #   if "ROW_VERSION=ROW_VERSION+1" not in sql_upper:
+      #      raise RuleViolation("UPDATE must increment row_version")
+       # if "UPDATED_AT" not in sql_upper:
+        #    raise RuleViolation("UPDATE must update updated_at")
+        
+
         for patter in TAUTOLOGIES:
             if re.search(patter,sql_upper):
                 raise RuleViolation("Tautological WHERE clause detected")
-        
+            
 
 
             

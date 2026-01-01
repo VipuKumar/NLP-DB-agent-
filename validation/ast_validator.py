@@ -14,7 +14,7 @@ ALLOWED_STATEMENTS={
 }
 
 
-def validate_sql(sql:str,allowed_tables:set,allowed_columns:dict)->None:
+def validate_ast(sql:str,allowed_tables:set,allowed_columns:dict)->None:
     try:
         tree=sqlglot.parse_one(sql)
     except Exception as e:

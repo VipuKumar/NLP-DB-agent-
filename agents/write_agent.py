@@ -2,12 +2,20 @@ from agents.base_agent import BaseAgent
 
 
 class WriteAgent(BaseAgent):
-    def generate_sql(self, question: str, schema: dict) -> str:
-            prompt=f"""
+    def generate_sql(self, question: str, schema: dict) -> dict:
+        prompt = f"""
 You are a SAFE SQL WRITE agent.
 
 You can ONLY generate valid INSERT, UPDATE, or DELETE SQL.
-You must follow these safety rules:
+You must follow ALL safety rules exactly.
+
+CRITICAL SYSTEM INVARIANTS (MANDATORY):
+- EVERY UPDATE statement MUST:
+  1. Increment row_version by 1
+     → row_version = row_version + 1
+  2. Update the timestamp
+     → updated_at = CURRENT_TIMESTAMP
+- If you cannot include BOTH, you MUST return an error.
 
 SAFETY RULES:
 1. NEVER update or delete all rows.
@@ -18,15 +26,13 @@ SAFETY RULES:
 3. For INSERT:
    - Always specify column names
    - Always fill ALL required fields
-   - Never insert if required info is missing
 4. For UPDATE/DELETE:
-   - ALWAYS require a specific target row
-   - ALWAYS require a WHERE clause
+   - ALWAYS require a WHERE clause that targets specific rows
 5. ALWAYS use single quotes for string values.
-6. If the user's request is unsafe or ambiguous, respond with an error.
+6. If the user's request is unsafe, ambiguous, or violates invariants,
+   respond with an error.
 
-OUTPUT FORMAT (strict):
-Return a JSON object in one of these formats:
+OUTPUT FORMAT (STRICT JSON ONLY):
 
 For valid SQL:
 {{
@@ -43,7 +49,7 @@ For unsafe or incomplete requests:
 SCHEMA:
 {schema}
 
-EXAMPLES YOU MUST FOLLOW:
+EXAMPLES YOU MUST FOLLOW EXACTLY:
 
 User: add a new user named David who is 28
 {{
@@ -53,14 +59,18 @@ User: add a new user named David who is 28
 
 User: update Alice's age to 40
 {{
-  'type': 'sql',
-  'query': "UPDATE users SET age = 40 WHERE name = 'Alice';"
+  "type": "sql",
+  "query": "UPDATE users
+            SET age = 40,
+                row_version = row_version + 1,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE name = 'Alice';"
 }}
 
 User: delete Charlie from the users table
 {{
-  'type': 'sql',
-  'query': "DELETE FROM users WHERE name = 'Charlie';"
+  "type": "sql",
+  "query": "DELETE FROM users WHERE name = 'Charlie';"
 }}
 
 User: update everyone's age to 70
@@ -69,11 +79,11 @@ User: update everyone's age to 70
   "message": "Cannot update all users without a specific target."
 }}
 
-Now convert the following user request into safe SQL or an error:
+Now convert the following user request into safe SQL or an error.
 
 User request: "{question}"
 
-Respond only with the JSON object.
+Respond ONLY with the JSON object. No explanation.
 """
-            raw=self.run_llm(prompt)
-            return self.parse_json(raw)
+        raw = self.run_llm(prompt)
+        return self.parse_json(raw)

@@ -1,0 +1,29 @@
+PRAGMA foreign_keys=ON;
+
+CREATE TABLE users(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    age INTEGER NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+
+    active INTEGER NOT NULL DEFAULT 1,
+    role TEXT NOT NULL DEFAULT "user",
+    row_version INTEGER NOT NULL DEFAULT 0,
+
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+
+
+
+);
+
+
+CREATE TABLE audit_log(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sql TEXT NOT NULL,
+    sql_hash TEXT NOT NULL,
+    write_set_hash TEXT NOT NULL,
+    row_count INTEGER NOT NULL,
+    approved_by TEXT NOT NULL,
+    execited_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

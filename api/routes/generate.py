@@ -35,7 +35,7 @@ def generate(req: GenerateRequest):
     )
     """
 
-    # -------- GENERATE --------
+  
     if req.mode == "read":
         sql = ReadAgent().generate_sql(req.question, schema)
 
@@ -47,14 +47,13 @@ def generate(req: GenerateRequest):
 
         sql = out["query"]
 
-        # ✅ correct place for invariant enforcement
+        
         sql = enforce_update_invariants(sql)
         print(sql)
 
     else:
         raise HTTPException(status_code=400, detail="Invalid mode")
 
-    # -------- VALIDATE --------
     try:
         validate_ast(
             sql,
@@ -68,7 +67,7 @@ def generate(req: GenerateRequest):
     except RuleViolation as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    # -------- READ --------
+ 
     if req.mode == "read":
         rows = execute_select("db/example.db", sql)
         return {
@@ -76,7 +75,7 @@ def generate(req: GenerateRequest):
             "rows": rows
         }
 
-    # -------- WRITE --------
+  
     response = {"sql": sql}
 
     conn = sqlite3.connect("db/example.db")

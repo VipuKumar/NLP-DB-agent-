@@ -5,7 +5,7 @@ def init_db():
     conn=sqlite3.connect(database_file)
     cursor=conn.cursor()
     cursor.execute("""
-        SELECT * FROM audit_log"""
+        SELECT * FROM users"""
     )
     rows=cursor.fetchall()
     conn.close()

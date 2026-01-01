@@ -24,20 +24,20 @@ def execute(req:ExecuteRequest):
 
     cursor=conn.cursor()
 
-
-    if "WHERE" not in req.sql.upper():
-        raise HTTPException(status_code=400,detail="Unsafe execution request")
     
+    if "WHERE" not in req.sql.upper():
+            raise HTTPException(status_code=400,detail="Unsafe execution request")
+        
 
     where_clause=req.sql.split("WHERE",1)[1]
 
     ws=compute_write_set(conn,"users",where_clause)
 
     if ws["write_set_hash"]!=req.write_set_hash:
-        raise HTTPException(
-            status_code=409,
-            detail="Database changed.Re-approval required"
-        )
+            raise HTTPException(
+                status_code=409,
+                detail="Database changed.Re-approval required"
+            )
     
 
     try:

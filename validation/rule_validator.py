@@ -38,11 +38,6 @@ def validate_rules(sql:str)->None:
             raise RuleViolation("UPDATE/DELETE without WHERE is not allowed")
         
 
-    #if sql_upper.startswith("UPDATE"):
-     #   if "ROW_VERSION=ROW_VERSION+1" not in sql_upper:
-      #      raise RuleViolation("UPDATE must increment row_version")
-       # if "UPDATED_AT" not in sql_upper:
-        #    raise RuleViolation("UPDATE must update updated_at")
         
 
         for patter in TAUTOLOGIES:

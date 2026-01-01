@@ -80,6 +80,28 @@ def generate(req: GenerateRequest):
     response = {"sql": sql}
 
     conn = sqlite3.connect("db/example.db")
+    
+    sql_upper = sql.upper().strip()
+    is_insert=sql_upper.startswith("INSERT")
+
+    if is_insert:
+        try:
+            cursor=conn.cursor()
+            cursor.execute("BEGIN IMMEDIATE;")
+            cursor.execute(sql)
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=400, detail=str(e))
+        finally:
+            conn.close()
+        return {
+        "sql": sql,
+        "status": "inserted"
+    }
+
+
+
     try:
         if "WHERE" not in sql.upper():
             raise HTTPException(status_code=400, detail="Write query must have WHERE")

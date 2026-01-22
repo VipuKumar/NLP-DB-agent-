@@ -6,4 +6,3 @@ pydantic
 sqlalchemy
 sqlglot
 sqlite3
-redis

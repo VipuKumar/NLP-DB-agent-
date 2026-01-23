@@ -1,2 +1,4 @@
 .env
 venv
+
+UI/package-lock.json
